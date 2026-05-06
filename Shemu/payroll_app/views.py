@@ -21,25 +21,21 @@ def login_view(request):
         if user is not None:
             login(request, user)
 
-            if admin_key:
-                if admin_key == ADMIN_KEY:
+            if user is not None:
+                login(request, user)
+
+                if admin_key and admin_key == ADMIN_KEY:
                     role = 'admin'
-                else:
+                elif admin_key:
                     messages.error(request, "Incorrect admin key")
                     return render(request, 'payroll_app/login.html')
-            else:
-                role = 'employee'
+                else:
+                    role = 'employee'
 
-            login(request, user)
-            request.session['role'] = role
+                request.session['role'] = role
 
-            if role == 'admin':
-                return redirect('employees')
-            else:
-                return redirect('payslips')
+                return redirect('employees' if role == 'admin' else 'payslips')
 
-
-            return redirect('employees')
         else:
             messages.error(request, "Invalid username or password")
 
